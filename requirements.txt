@@ -1,0 +1,9 @@
+ipython
+numpy
+matplotlib
+torch
+torchvision
+albumentations
+pandas
+scikit-image
+git+https://github.com/qubvel/segmentation_models.pytorch.git@a3cc9ac 
