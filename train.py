@@ -42,16 +42,14 @@ def train(model, criterion, optimizer, dataloaders, device, writer=None, num_epo
                 model.eval()
 
             for data in tqdm.tqdm(iter(dataloaders[phase])):
-                imgs = data['image']
-                masks = data['mask']
-                imgs = imgs.to(device, dtype=torch.float)
-                masks = masks.to(device, dtype=torch.float)
+                gimgs = data['image'].to(device, dtype=torch.float)
+                gmasks = data['mask'].to(device, dtype=torch.float)
 
                 optimizer.zero_grad()
 
                 #with torch.set_grad_enabled(phase == "train"):
-                outputs = model(imgs)
-                loss = criterion(outputs["out"], msks)
+                outputs = model(gimgs)
+                loss = criterion(outputs["out"], gmasks)
 
                 if phase == "train":
                     loss.backward()
@@ -87,7 +85,7 @@ if __name__ == '__main__':
         ToTensorV2()
         ])
 
-    dataset = dataset.Dataset(root='./semantic_drone_dataset', train=True, small=True, transforms=data_transforms)
+    dataset = dataset.Dataset(root='./semantic_drone_dataset', train=True, imgsize=(1440, 960), transforms=data_transforms)
     numtrain = int(len(dataset) * 0.7)
     numval = len(dataset) - numtrain
     trainset, valset = torch.utils.data.random_split(dataset, [numtrain, numval])
@@ -97,6 +95,7 @@ if __name__ == '__main__':
 
     dataloaders = {"train": train_loader, "val": val_loader}
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    #device = torch.device("cpu")
 
     model = smp.Unet('resnet101', classes=20, activation=None) #, activation='softmax2d') # in pytorch, nn.CrossEntropy computes softmax
     def _enablegrad(n, b):
