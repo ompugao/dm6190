@@ -85,36 +85,18 @@ if __name__ == '__main__':
     parser.add_argument("-freeze_decoder", help="segmentation model", default=0, type=int)
     parser.add_argument("-imgwidth", help="img width", default=480, type=int)
     parser.add_argument("-imgheight", help="img height", default=320, type=int)
-    parser.add_argument("-augmentation_version", help="augmentation_version", default=0, type=int)
     parser.add_argument("-logdirprefix", help="logdir prefix", default="", type=str)
-    parser.add_argument("-numepochs", help="numepochs", default=100, type=int)
-    parser.add_argument("-gpu", help="gpu device id", default=0, type=int)
     args = parser.parse_args()
 
+    data_transforms = albumentations.Compose([
+        albumentations.Flip(),
+        albumentations.RandomBrightness(0.2),
+        albumentations.ShiftScaleRotate(rotate_limit=90, scale_limit=0.10),
+        albumentations.Normalize(),
+        ToTensorV2()
+        ])
 
-    if args.augmentation_version == 0:
-        data_transforms = albumentations.Compose([
-            albumentations.Flip(),
-            albumentations.RandomBrightness(0.2),
-            albumentations.ShiftScaleRotate(rotate_limit=90, scale_limit=0.10),
-            albumentations.Normalize(),
-            ToTensorV2()
-            ])
-        dataset = ds.Dataset(root='./semantic_drone_dataset', train=True, imgsize=(args.imgwidth, args.imgheight), transforms=data_transforms)
-    elif args.augmentation_version == 1:
-        data_transforms = albumentations.Compose([
-            albumentations.RandomSizedCrop([1000, 4000], args.imgheight, args.imgwidth),
-            albumentations.Flip(),
-            albumentations.OneOf([
-                albumentations.RandomBrightness(0.1, p=1),
-                albumentations.RandomContrast(0.1, p=1),
-                albumentations.RandomGamma(p=0.5)
-                ], p=0.3),
-            albumentations.ShiftScaleRotate(rotate_limit=90, scale_limit=0.10),
-            albumentations.Cutout(p=0.5),
-            ToTensorV2()
-            ])
-        dataset = ds.Dataset(root='./semantic_drone_dataset', train=True, transforms=data_transforms)
+    dataset = ds.Dataset(root='./semantic_drone_dataset', train=True, imgsize=(args.imgwidth, args.imgheight), transforms=data_transforms)
     #dataset = ds.Dataset(root='./semantic_drone_dataset', train=True, imgsize=(480, 320), transforms=data_transforms)
     #dataset = ds.Dataset(root='./semantic_drone_dataset', train=True, imgsize=(960, 640), transforms=data_transforms)
     numtrain = int(len(dataset) * 0.7)
@@ -125,8 +107,8 @@ if __name__ == '__main__':
     val_loader = torch.utils.data.DataLoader(valset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True, drop_last=True )
 
     dataloaders = {"train": train_loader, "val": val_loader}
-    device = torch.device("cuda:%d"%args.gpu if torch.cuda.is_available() else "cpu")
-    #device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
     #device = torch.device("cpu")
 
     if args.model == "unet":
@@ -167,5 +149,5 @@ if __name__ == '__main__':
     model.to(device)
     total_epoch = 0
     # from IPython.terminal import embed; ipshell=embed.InteractiveShellEmbed(config=embed.load_default_config())(local_ns=locals())
-    model, loss_history, total_epoch = train(model, criterion, optimizer, dataloaders, device, writer, num_epochs=args.numepochs, print_freq=1, past_epochs=total_epoch)
+    model, loss_history, total_epoch = train(model, criterion, optimizer, dataloaders, device, writer, num_epochs=100, print_freq=1, past_epochs=total_epoch)
     torch.save(model.state_dict(), logdir+'/model.pth')

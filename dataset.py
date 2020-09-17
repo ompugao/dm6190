@@ -76,8 +76,8 @@ class Dataset(VisionDataset):
                 img = np.array(img)
                 mask = np.array(mask)
         else:
-            img = np.array(default_loader(imgfiletoload))
-            mask = np.array(default_loader(maskfiletoload).convert('L')) #convert to grayscale again
+            img = np.array(default_loader(imgfile))
+            mask = np.array(default_loader(maskfile).convert('L')) #convert to grayscale again
         return self.transforms(image=img, mask=mask)
 
 if __name__ == '__main__':

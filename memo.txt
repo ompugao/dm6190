@@ -1,0 +1,55 @@
+logs/unet-resnet101-2020-09-15 11-17-32.227555/: 
+unet (resnet101), imgsize: (480, 320), numepoch: 100
+freeze encoder/decoder
+
+logs/unet-resnet101-2020-09-15 13-14-10.467748/
+unet (resnet101), imgsize: (960, 640), numepoch: 100
+freeze encoder/decoder
+size: 11775MiB
+
+logs/unet-resnet101-2020-09-15 13-40-39.555304/
+unet (resnet101), imgsize: (960, 640), numepoch: 100
+freeze encoder
+size: 11775MiB
+
+logs/2020-09-15 14-49-30.522124/
+unet (resnet101), imgsize: (480, 320), numepoch: 100
+freeze encoder
+
+----
+
+logs/....
+fpn (resnet101), imgsize: (480, 320), numepoch: 100
+freeze encoder/decoder
+
+----
+augmentation version 0:
+imgsize 480 x 320
+
+unet_freeze_decoder_2020-09-15 15-35-27.405352
+unet_unfreeze_decoder_2020-09-15 16-02-05.704776
+fpn_freeze_decoder_2020-09-15 16-27-39.525568
+fpn_unfreeze_decoder_2020-09-15 16-50-28.006504
+deeplabv3_freeze_decoder_2020-09-15 17-13-17.112977
+deeplabv3_unfreeze_decoder_2020-09-16 00-51-21.956395
+deeplabv3plus_freeze_decoder_2020-09-16 08-29-26.554970
+deeplabv3plus_unfreeze_decoder_2020-09-16 09-10-49.252822
+pan_freeze_decoder_2020-09-16 09-52-11.379602
+pan_unfreeze_decoder_2020-09-16 10-33-12.988805
+
+----
+
+augmentation version 0:
+imgsize 960 x 640
+
+unet_freeze_decoder_2020-09-16 11-14-03.715160
+unet_unfreeze_decoder_2020-09-16 12-27-43.885046
+fpn_freeze_decoder_2020-09-16 13-41-20.060483
+fpn_unfreeze_decoder_2020-09-16 14-43-17.875869
+# deeplab系はメモリにのりきらなかった
+pan_freeze_decoder_2020-09-17 11-27-21.809318
+pan_unfreeze_decoder_2020-09-17 11-28-05.393323
+
+----
+augmentation version 1:
+not yet...
