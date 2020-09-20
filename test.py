@@ -76,7 +76,8 @@ def dice_loss(input, target):
 
 def test_model(model, logdir, dataloader, device, numclasses):
     model.to(device)
-    model.load_state_dict(torch.load(logdir+'/model.pth'))
+    #model.load_state_dict(torch.load(logdir+'/model.pth'))
+    model.load_state_dict(torch.load(logdir+'/model.pth', map_location="cuda:0"))
     model.eval()
 
     # ignore background(0)
@@ -103,8 +104,53 @@ def test_model(model, logdir, dataloader, device, numclasses):
 
     #for i in range(1, numclasses):
     #    print('Accuracy of class %d : %2d %%' % (i, 100 * class_correct[i] / class_total[i]))
-    print("Mean IoU: %f"%sum_miou)
+    print("Mean IoU: %f"%(sum_miou/len(dataloader)))
     print("Pixel Accuracy Sum: %f, mean: %f"%(sum_pixacc, sum_pixacc/len(dataloader)))
+
+
+def imshow(img, mask, groundtruth=None, title=None, save=False):
+    import torchvision.transforms as transforms
+    import matplotlib.pyplot as plt
+    from torchvision.utils import make_grid
+    from skimage.color import label2rgb
+
+    plt.subplot(1,3,1)
+    plt.title('original image')
+    plt.imshow(img.permute(1,2,0).numpy())
+    totensor = transforms.ToTensor()
+    for i, (img, label) in enumerate(zip([img, img], [mask, groundtruth])):
+        ptimg = make_grid(totensor(label2rgb(label.numpy(), img.permute(1,2,0).numpy(), bg_label=0)))
+        name = title + "_%d"%i
+        plt.subplot(1,3,i+2)
+        plt.title(name)
+        plt.imshow(ptimg.permute(1,2,0).numpy(), interpolation='nearest')
+    plt.tight_layout()
+    if save:
+        plt.savefig(name)
+    else:
+        plt.show()
+
+def check_images(model, logdir, dataloader, device):
+    model.to(device)
+    model.load_state_dict(torch.load(logdir+'/model.pth', map_location="cuda:0"))
+    model.eval()
+
+    with torch.no_grad():
+        for data in dataloader:
+            img = data['image']
+            mask = data['mask']
+            output = model(img.to(device))
+            #from IPython.terminal import embed; ipshell=embed.InteractiveShellEmbed(config=embed.load_default_config())(local_ns=locals())
+            predicted = torch.argmax(output, 1)
+            img = img.squeeze(0)
+            mask = mask.squeeze(0)
+            predicted = predicted.squeeze(0)
+
+            imshow(img.cpu(), predicted.cpu(), mask.cpu(), title='check', save=False)
+            #imshow(img.cpu(), mask.cpu(), save=False)
+            #s = input('input q to quit, or press enter to see next >')
+            if s == 'q':
+                break
 
 
 if __name__ == '__main__':
@@ -170,13 +216,15 @@ if __name__ == '__main__':
         out = model(img.reshape(1, *img.shape).to(device, torch.float))
         loss = criterion(out, mask.reshape(1, *mask.shape).to(device, torch.long))
         #loss.detach().item()
-        ds.imshow([img.permute(1,2,0), img.permute(1,2,0)], [torch.argmax(out.detach().cpu(),1).permute(1,2,0), mask.reshape(*mask.shape, 1)])
+        plt.imshow([img.permute(1,2,0), img.permute(1,2,0)], [torch.argmax(out.detach().cpu(),1).permute(1,2,0), mask.reshape(*mask.shape, 1)])
         #gridimg = torchvision.utils.make_grid([torch.argmax(out.detach().cpu(), 1), mask.reshape(1, *mask.shape)]) #img.permute(1, 2, 0), 
         plt.imshow(gridimg.permute(1,2,0))
         plt.show()
 
     model.load_state_dict(best_state)
     """
+    # check_images(model, args.logdir, test_loader, device, saveto=None)
+
     # model.eval()
     # testdataset = ds.Dataset(root='./semantic_drone_dataset', train=False, imgsize=(480, 320), transforms=data_transforms)
     # img, mask = testdataset[0].values()
