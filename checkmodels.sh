@@ -30,3 +30,10 @@ python test.py -model=pan -logdir='logs/pan_unfreeze_decoder_2020-09-16 10-33-12
 #python test.py -model=pan -logdir='logs/pan_freeze_decoder_2020-09-17 11-27-21.809318' -augmentation_version=0 -imgheight=640 -imgwidth=960
 #python test.py -model=pan -logdir='logs/pan_unfreeze_decoder_2020-09-17 11-28-05.393323' -augmentation_version=0 -imgheight=640 -imgwidth=960
 
+
+# Mean IoU: 0.243431, Pixel Accuracy Sum: 69.757715, mean: 0.871971
+# Mean IoU: 0.255911, Pixel Accuracy Sum: 70.520202, mean: 0.881503
+# Mean IoU: 0.268006, Pixel Accuracy Sum: 71.170475, mean: 0.889631
+# Mean IoU: 0.253208, Pixel Accuracy Sum: 70.479209, mean: 0.880990
+# Mean IoU: 0.240053, Pixel Accuracy Sum: 69.698047, mean: 0.871226
+# Mean IoU: 0.195554, Pixel Accuracy Sum: 60.221577, mean: 0.752770
