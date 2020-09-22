@@ -1,6 +1,5 @@
 import torch
 import torchvision
-import dataset as ds
 import time
 import copy
 import tqdm
@@ -16,6 +15,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+import dataset as ds
+import metric
 
 console = logging.StreamHandler()
 #console_formatter = logging.Formatter('[%(levelname)s] [%(name)s: %(funcName)s] %(message)s')
@@ -91,7 +92,9 @@ def test_model(model, logdir, dataloader, device, numclasses):
             gmasks = data['mask'].to(device, dtype=torch.long)
             outputs = model(gimgs)
             predicted = torch.argmax(outputs, dim=1)
-            miou = iou_mean(predicted, gmasks, numclasses)
+            #miou = iou_mean(predicted, gmasks, numclasses)
+            iou = metric.iou_pytorch(predicted, gmasks)
+            miou = iou.mean()
             sum_miou += miou
             c = (predicted == gmasks).squeeze()
             #for i in range(1, numclasses):
